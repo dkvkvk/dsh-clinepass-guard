@@ -69,10 +69,17 @@ return {
       '.cpg-tbl thead th{font-weight:600;font-size:11px;color:var(--dsw-alias-label-secondary,#8b8b8b);white-space:nowrap;border-bottom:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.2));background:rgba(128,128,128,.02)}',
       '.cpg-tbl tbody tr+tr td{border-top:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.13))}',
       '.cpg-tbl tbody tr:hover td{background:rgba(128,128,128,.035)}',
-      '.cpg-tbl-kv th{width:132px;font-weight:500;color:var(--dsw-alias-label-secondary,#8b8b8b);font-size:11.5px}',
+      '.cpg-detail{padding:0}',
+      // 就地展开的详情行：整行合并 8 列，用浅色背景 + 虚线顶边与数据行区分
+      '.cpg-detailrow>td{padding:0;background:rgba(120,140,200,.05);border-top:1px dashed var(--dsw-alias-border,rgba(255,255,255,.14))}',
+      '.cpg-detail .cpg-sec-b{padding:12px 13px}',
+      // 关键：父表用固定列宽。否则父表是自动列宽、内层 kv 表是 width:100%，
+      // 两者互为输入 → 内层表塌到最小内容宽度（1 个字符一行，长 slug 竖着排）。
+      '.cpg-tbl-pin{table-layout:fixed;width:100%}',
       // 详情卡的长值（16 个上游的列表、整段报错 JSON）必须换行，不能把表格撑出容器再被裁掉。
       // table-layout:fixed + overflow-wrap:anywhere 是这里的关键：自动列宽会按最长的不可断行片段撑开。
       '.cpg-tbl-kv{table-layout:fixed;width:100%}',
+      '.cpg-tbl-kv th{width:132px;font-weight:500;color:var(--dsw-alias-label-secondary,#8b8b8b);font-size:11.5px}',
       '.cpg-tbl-kv td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;font-size:11.5px;line-height:1.55}',
       '.cpg-sub{font-size:10.5px;color:var(--dsw-alias-label-secondary,#8b8b8b);margin-top:1px}',
       '.cpg-sub-warn{color:#d29922}',
@@ -539,7 +546,7 @@ return {
             ? h('div', { className: 'cpg-note' }, '没有读到模型清单（检查 profile 的 llm 配置）。')
             : h('div', null,
               h('div', { className: 'cpg-tscroll' },
-                h('table', { className: 'cpg-tbl' },
+                h('table', { className: 'cpg-tbl cpg-tbl-pin' },
                   h('thead', null, h('tr', null,
                     h('th', { style: { width: '118px' } }, '模型'),
                     h('th', { style: { width: '104px' } }, '结论'),
@@ -548,8 +555,8 @@ return {
                     h('th', { className: 'cpg-num', style: { width: '48px' } }, '缓存率'),
                     h('th', { className: 'cpg-num', style: { width: '62px' } }, '费用'),
                     h('th', null, '钉选目标'),
-                    h('th', { className: 'cpg-act' }, ''))),
-                  h('tbody', null, models.map((m) => {
+                    h('th', { className: 'cpg-act', style: { width: '104px' } }, ''))),
+                  h('tbody', null, models.reduce((acc, m) => {
                     const v = live.find((x) => x.model === m) || null
                     const c = capBy[m]
                     const p = probeBy[m]
@@ -565,7 +572,7 @@ return {
                     const slug = (v && v.lastSlug) || (p && p.canonicalSlug) || (b && b.canonicalSlug) || ''
                     const distKeys = v ? Object.keys(v.providers || {}) : []
                     const dist = distKeys.map((x) => x + '×' + v.providers[x]).join('  ')
-                    return h('tr', { key: m },
+                    acc.push(h('tr', { key: m },
                       h('td', null,
                         h('div', { className: 'cpg-name cpg-mono', title: m }, shortModel(m)),
                         slug ? h('div', { className: 'cpg-slug cpg-mono', title: slug }, slug) : null),
@@ -604,8 +611,21 @@ return {
                         ' ',
                         h('button', { className: 'cpg-btn cpg-btn-x', disabled: !!busy,
                           onClick: () => setOpen(Object.assign({}, open, { [m]: !open[m] })) },
-                          open[m] ? '收起' : '详情')))
-                  })))),
+                          open[m] ? '收起' : '详情'))))
+                    // 详情就地展开在所属行下面：点哪行就在哪行看到，不需要滚动
+                    if (open[m]) {
+                      acc.push(h('tr', { key: m + '-detail', className: 'cpg-detailrow' },
+                        h('td', { colSpan: 8 },
+                          p
+                            ? h(DetailCard, {
+                              p, busy, compact: true,
+                              onCache: () => run('guard.cache', { model: m, rounds: 2 }, '缓存 ' + m),
+                            })
+                            : h('div', { className: 'cpg-note', style: { padding: '11px 13px' } },
+                              '这个模型还没探测过 —— 点本行的「探测」，才会知道它能不能钉、有哪些候选上游。'))))
+                    }
+                    return acc
+                  }, [])))),
               h('div', { className: 'cpg-note cpg-note-b' },
                 '结论怎么看：绿「已钉住」= 请求确实落在你指定的上游；灰「钉不住·正常」= 该模型只有一条管道，' +
                 '没有对象可钉（deepseek-v4.1-flash 就是这种，不是坏了）；蓝「可钉·未钉」= 想省缓存就填个目标；' +
@@ -661,11 +681,9 @@ return {
 
         ),
 
-        // ── 详情 ──
-        (st.probes || []).filter((p) => open[p.model]).map((p) => h(DetailCard, {
-          key: 'd-' + p.model, p, busy,
-          onCache: () => run('guard.cache', { model: p.model, rounds: 2 }, '缓存 ' + p.model),
-        })),
+        // ── 详情不再单独渲染在面板末尾 ──
+        // 以前详情卡排在「操作历史」之后，点表格第一行的「详情」要往下滚好几百像素才看得到，
+        // 用户根本不知道点了到底发生了什么。现在改成就地展开在那一行下面（见上方 tbody）。
 
         // ── 操作历史 ──
         (st.history || []).length
@@ -706,12 +724,21 @@ return {
       if (p.vendorCache) kv('厂商侧缓存 hit/miss', p.vendorCache.hit + ' / ' + p.vendorCache.miss)
       kv('候选上游', p.availableProviders && p.availableProviders.length ? p.availableProviders.join(', ') : null)
 
-      return h('div', { className: 'cpg-sec' },
-        h('div', { className: 'cpg-sec-h' },
-          h('div', { className: 'cpg-sec-t' }, '探测详情：' + shortModel(p.model)),
-          h('div', { className: 'cpg-sec-m' },
-            (p.pinHonored === true ? pill('可钉', 'ok') : (p.pinHonored === false ? pill('钉不动', 'dim') : pill('未知', 'dim'))))),
+      // compact：就地展开时不再重复标题栏（模型名上一行就有），只保留结论 pill
+      const pinBadge = p.pinHonored === true
+        ? pill('可钉', 'ok')
+        : pill(p.pinHonored === false ? '钉不动' : '未知', 'dim')
+      const head = props.compact ? null : h('div', { className: 'cpg-sec-h' },
+        h('div', { className: 'cpg-sec-t' }, '探测详情：' + shortModel(p.model)),
+        h('div', { className: 'cpg-sec-m' }, pinBadge))
+      return h('div', { className: props.compact ? 'cpg-detail' : 'cpg-sec' },
+        head,
         h('div', { className: 'cpg-sec-b' },
+          props.compact
+            ? h('div', { className: 'cpg-note', style: { marginBottom: '8px' } },
+              '探测结论：' + (p.pinHonored === true ? '可钉' : (p.pinHonored === false ? '钉不动（单一管道）' : '未知')) +
+              (p.probedAt ? ' · ' + String(p.probedAt).slice(11, 19) : ''))
+            : null,
           p.error ? h('div', { className: 'cpg-err', style: { marginBottom: '8px' } }, '错误：' + p.error) : null,
           p.note ? h('div', { className: 'cpg-note', style: { marginBottom: '8px' } }, '提示：' + p.note) : null,
           h('table', { className: 'cpg-tbl cpg-tbl-kv' }, h('tbody', null, rows)),

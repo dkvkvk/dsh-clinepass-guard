@@ -153,6 +153,18 @@ function toHtml(node) {
     if (p.disabled) attrs.push('disabled')
   }
   if (node.tag === 'button' && p.disabled) attrs.push('disabled')
+  // React 用 camelCase 的 DOM 属性（colSpan / rowSpan / maxLength…），这里必须转成 HTML 属性名。
+  // 以前只处理了 className/id/title/style，colSpan 直接被丢掉 → 详情行的 <td> 只占第一列，
+  // 被挤成 1 个字符宽。渲染预览是唯一的视觉验收手段，工具自身失真比代码 bug 更坑。
+  const camelAttrs = {
+    colSpan: 'colspan', rowSpan: 'rowspan', maxLength: 'maxlength',
+    readOnly: 'readonly', tabIndex: 'tabindex', htmlFor: 'for',
+  }
+  for (const k of Object.keys(camelAttrs)) {
+    if (p[k] !== undefined && p[k] !== null && p[k] !== false) {
+      attrs.push(camelAttrs[k] + '="' + esc(p[k]) + '"')
+    }
+  }
   const inner = (node.children || []).map(toHtml).join('')
   const voidTags = ['input', 'br', 'img', 'hr']
   if (voidTags.indexOf(node.tag) !== -1) return '<' + node.tag + ' ' + attrs.join(' ') + '>'
