@@ -21,7 +21,7 @@ return {
       '.cpg-wrap{display:flex;flex-direction:column;gap:12px;padding:2px 2px 28px;font-size:13px;line-height:1.5}',
       '.cpg-dim{color:var(--dsw-alias-label-secondary,#8b8b8b)}',
       '.cpg-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;font-variant-numeric:tabular-nums}',
-      '.cpg-err{color:#f85149;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.35)}',
+      '.cpg-err{color:#f85149;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.35);word-break:break-word;overflow-wrap:anywhere}',
 
       // ── 结论条 ──
       '.cpg-hero{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:12px;border:1px solid var(--dsw-alias-border-secondary,rgba(128,128,128,.28))}',
@@ -58,7 +58,7 @@ return {
       '.cpg-sec-h{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(128,128,128,.045);border-bottom:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.18))}',
       '.cpg-sec-t{font-size:12.5px;font-weight:650;letter-spacing:.01em}',
       '.cpg-sec-m{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--dsw-alias-label-secondary,#8b8b8b)}',
-      '.cpg-sec-b{padding:11px 13px}',
+      '.cpg-sec-b{padding:11px 13px;overflow-x:auto}',
       '.cpg-sec-b-flush{padding:0}',
       '.cpg-note{font-size:11.5px;color:var(--dsw-alias-label-secondary,#8b8b8b);line-height:1.6}',
       '.cpg-note-b{margin-top:9px}',
@@ -70,6 +70,10 @@ return {
       '.cpg-tbl tbody tr+tr td{border-top:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.13))}',
       '.cpg-tbl tbody tr:hover td{background:rgba(128,128,128,.035)}',
       '.cpg-tbl-kv th{width:132px;font-weight:500;color:var(--dsw-alias-label-secondary,#8b8b8b);font-size:11.5px}',
+      // 详情卡的长值（16 个上游的列表、整段报错 JSON）必须换行，不能把表格撑出容器再被裁掉。
+      // table-layout:fixed + overflow-wrap:anywhere 是这里的关键：自动列宽会按最长的不可断行片段撑开。
+      '.cpg-tbl-kv{table-layout:fixed;width:100%}',
+      '.cpg-tbl-kv td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;font-size:11.5px;line-height:1.55}',
       '.cpg-sub{font-size:10.5px;color:var(--dsw-alias-label-secondary,#8b8b8b);margin-top:1px}',
       '.cpg-sub-warn{color:#d29922}',
       // 结论列的说明：单行省略，否则一个长注释把整行撑到 4 行高（实测过）

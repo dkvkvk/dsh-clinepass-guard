@@ -1,0 +1,101 @@
+[
+  {
+    "cand": "azure",
+    "ok": false,
+    "http": 500,
+    "shown": null,
+    "prompt": 0,
+    "cached": 0,
+    "hit": 0,
+    "ms": 809,
+    "error": "{\"error\":\"inference request failed: failed to invoke model 'deepseek/deepseek-v4.1-flash-1017' from Vercel: request failed with status 400: {\\\"error\\\":{\\\"messag"
+  },
+  {
+    "cand": "gmicloud",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18245,
+    "cached": 18176,
+    "hit": 99.6,
+    "ms": 2541,
+    "error": null
+  },
+  {
+    "cand": "inference-net",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18220,
+    "cached": 18176,
+    "hit": 99.8,
+    "ms": 931,
+    "error": null
+  },
+  {
+    "cand": "morph",
+    "ok": false,
+    "http": 500,
+    "shown": null,
+    "prompt": 0,
+    "cached": 0,
+    "hit": 0,
+    "ms": 830,
+    "error": "{\"error\":\"inference request failed: failed to invoke model 'deepseek/deepseek-v4.1-flash-1017' from Vercel: request failed with status 429: {\\\"error\\\":{\\\"messag"
+  },
+  {
+    "cand": "pareto",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18245,
+    "cached": 18176,
+    "hit": 99.6,
+    "ms": 1896,
+    "error": null
+  },
+  {
+    "cand": "particle",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18245,
+    "cached": 0,
+    "hit": 0,
+    "ms": 1409,
+    "error": null
+  },
+  {
+    "cand": "relace",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18220,
+    "cached": 17920,
+    "hit": 98.4,
+    "ms": 1608,
+    "error": null
+  },
+  {
+    "cand": "runinfra",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18245,
+    "cached": 18048,
+    "hit": 98.9,
+    "ms": 1032,
+    "error": null
+  },
+  {
+    "cand": "wafer",
+    "ok": true,
+    "http": 200,
+    "shown": null,
+    "prompt": 18220,
+    "cached": 18176,
+    "hit": 99.8,
+    "ms": 1037,
+    "error": null
+  }
+]

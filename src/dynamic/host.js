@@ -174,13 +174,19 @@ return {
       return value
     }
 
-    // ── 网关调用（探测用，走原始 fetch，不经过守卫）──────────────────────────
-    async function callGateway(key, body) {
+    // ── 网关调用 ────────────────────────────────────────────────────────────
+    // useHook=false（默认）：走原始 fetch，不经过守卫。探测可钉性必须这样——它自己要在
+    //   请求体里塞 only:['__probe__']，被守卫再包一层就测不出真相。
+    // useHook=true：走被守卫包裹的 fetch，「缓存实测」用这条，才能真实复现
+    //   「钉选会不会被注入、最终落到哪个上游」。曾经这里也走 rawFetch，导致缓存实测
+    //   永远测的是网关默认路由，钉谁都一样——那个按钮等于在撒谎。
+    async function callGateway(key, body, useHook) {
       const ctrl = new AbortController()
       const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS)
       const t0 = Date.now()
+      const send = useHook ? globalThis.fetch : rawFetch
       try {
-        const res = await rawFetch(GATEWAY + '/chat/completions', {
+        const res = await send(GATEWAY + '/chat/completions', {
           method: 'POST',
           headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -681,7 +687,7 @@ return {
       ]
       const runs = []
       for (let i = 0; i < n; i++) {
-        const r = await callGateway(key, { model, messages, max_tokens: 64, stream: false })
+        const r = await callGateway(key, { model, messages, max_tokens: 64, stream: false }, true)
         if (r.http !== 200) {
           const { error } = unwrap(r.json)
           runs.push({ round: i + 1, ok: false, http: r.http, ms: r.ms, error: error || ('HTTP ' + r.http) })

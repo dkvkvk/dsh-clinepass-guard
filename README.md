@@ -40,6 +40,25 @@ Cline Pass 上游守卫 for DeepSeek Harness。**注入 + 观测 + 漂移告警*
    「注入」列的 `2/3` 表示 3 次请求里有 2 次真的落在你指定的上游；变成
    **「钉住·有漏」** 则说明配了但没落到，需要看详情。
 
+### 钉哪个上游？（有实测数据）
+
+**关键只有一条：这个上游做不做前缀缓存。** 做，钉上去便宜二十倍；不做（命中率 0%），
+钉上去等于每次全价，**比不钉还糟**。
+
+2026-10-20 对 `deepseek-v4.1-flash-1017` 的 16 个候选实测（同一段 18k 前缀连发两次）：
+
+| 结论 | 上游 |
+|---|---|
+| ⭐ 推荐 | `deepseek`（第一方，98.9%）、`togetherai`（99.6%，**0.74s 最快**）、`fireworks`、`inference-net`、`wafer`、`deepinfra` |
+| 可用 | `alibaba`、`novita`、`parasail`… 见文档 |
+| ❌ 不缓存，别钉 | **`parasail`（0%）、`particle`（0%）** |
+| ❌ 当前调不通 | `baseten`、`azure`、`morph` |
+
+完整数据、测法、以及「为什么默认选第一方」见
+[**docs/upstream-selection.md**](docs/upstream-selection.md)。
+
+> 换模型一定要重测：`deepseek-v4-pro` 只有 6 个候选，且这批结论不适用于它。
+
 ### 面板从上到下是什么
 
 | 区块 | 回答什么 | 平时要不要看 |

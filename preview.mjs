@@ -25,7 +25,16 @@ const React = {
   useState(initial) {
     const inst = current
     const i = inst.index++
-    if (!(i in inst.hooks)) inst.hooks[i] = (typeof initial === 'function') ? initial() : initial
+    if (!(i in inst.hooks)) {
+      const v = (typeof initial === 'function') ? initial() : initial
+      // PREVIEW_DETAIL=1：把「空对象」型的初始状态（面板里用来记展开项的 open={}）
+      // 换成一个「任何 key 都为真」的代理，这样预览就能渲染出展开的详情卡。
+      // 只影响空对象——fold={guide,settings}、draft=null 等不受影响。
+      inst.hooks[i] = (process.env.PREVIEW_DETAIL && v && typeof v === 'object'
+        && !Array.isArray(v) && Object.keys(v).length === 0)
+        ? new Proxy({}, { get: () => true, has: () => true })
+        : v
+    }
     const set = (next) => {
       const value = (typeof next === 'function') ? next(inst.hooks[i]) : next
       if (inst.hooks[i] !== value) { inst.hooks[i] = value; dirty++ }
