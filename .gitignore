@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 测试产生的假 HOME（里面有 .credentials.yaml，绝不入库）
+.test-home/
+
+# 预览渲染产物（PNG 截图入库，HTML 与实时快照不入库）
+preview/*.html
+preview/state-live.json
+
+# 临时探针脚本与抓包残留
+_*.mjs
+_*.json
+
+*.log
+.DS_Store
+Thumbs.db

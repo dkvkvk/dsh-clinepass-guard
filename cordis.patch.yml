@@ -1,0 +1,3 @@
+- insert:
+    - id: clinepass-guard
+      name: 'dsh-clinepass-guard'

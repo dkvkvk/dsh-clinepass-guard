@@ -1,0 +1,213 @@
+{
+  "ok": true,
+  "now": 1792482836786,
+  "gateway": "https://api.cline.bot/api/v1",
+  "configFile": "C:\\Users\\20646\\.dsh\\dsh-clinepass-guard.json",
+  "hook": {
+    "installed": true,
+    "installedAt": "2026-10-16T09:19:02.553Z",
+    "seen": 14,
+    "injected": 4,
+    "blocked": 0,
+    "observed": 14,
+    "errors": 0
+  },
+  "config": {
+    "injection": "auto",
+    "mode": "warn",
+    "pins": {
+      "cline-pass/deepseek-v4-pro": [
+        "deepseek"
+      ]
+    },
+    "observe": true
+  },
+  "credentialConfigured": true,
+  "credentialRef": "CLINE_API_KEY",
+  "credentialError": null,
+  "modelsSource": "profile patch",
+  "models": [
+    "cline-pass/glm-5.3",
+    "cline-pass/glm-5.3-flash",
+    "cline-pass/kimi-k3",
+    "cline-pass/deepseek-v4.1-flash",
+    "cline-pass/deepseek-v4-pro"
+  ],
+  "modelsNote": null,
+  "usage": {
+    "ok": true,
+    "keyRef": "CLINE_API_KEY",
+    "limits": [
+      {
+        "type": "five_hour",
+        "percentUsed": 8,
+        "remaining": 92,
+        "resetsAt": "2026-10-16T12:15:00Z"
+      },
+      {
+        "type": "weekly",
+        "percentUsed": 10,
+        "remaining": 90,
+        "resetsAt": "2026-10-21T10:37:32Z"
+      },
+      {
+        "type": "monthly",
+        "percentUsed": 5,
+        "remaining": 95,
+        "resetsAt": "2026-11-13T10:37:32Z"
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "model": "cline-pass/deepseek-v4.1-flash",
+      "pinnable": false,
+      "pinHonored": false,
+      "providers": [],
+      "fallbackCount": 0,
+      "canonicalSlug": "private/deepseek-v4p1-flash-contributor",
+      "finalProvider": "openai-compatible-private",
+      "checkedAt": "2026-10-16T09:20:00.000Z"
+    },
+    {
+      "model": "cline-pass/deepseek-v4-pro",
+      "pinnable": true,
+      "pinHonored": true,
+      "providers": [
+        "alibaba",
+        "azure",
+        "baseten",
+        "deepinfra",
+        "deepseek",
+        "novita"
+      ],
+      "fallbackCount": 5,
+      "canonicalSlug": "deepseek/deepseek-v4-pro",
+      "finalProvider": "deepseek",
+      "checkedAt": "2026-10-16T09:20:00.000Z"
+    },
+    {
+      "model": "cline-pass/kimi-k3",
+      "pinnable": false,
+      "pinHonored": false,
+      "providers": [],
+      "fallbackCount": 0,
+      "canonicalSlug": "moonshot/kimi-k3",
+      "finalProvider": "openai-compatible-private",
+      "checkedAt": "2026-10-16T09:20:00.000Z"
+    }
+  ],
+  "probes": [],
+  "live": [
+    {
+      "model": "cline-pass/deepseek-v4.1-flash",
+      "requests": 11,
+      "ok": 11,
+      "errors": 0,
+      "streams": 11,
+      "injected": 0,
+      "injectTarget": null,
+      "matched": 0,
+      "unmatched": 0,
+      "providers": {
+        "openai-compatible-private": 11
+      },
+      "slugs": {
+        "private/deepseek-v4p1-flash-contributor": 11
+      },
+      "lastProvider": "openai-compatible-private",
+      "lastSlug": "private/deepseek-v4p1-flash-contributor",
+      "lastFallbacks": [],
+      "lastAffinity": {
+        "outcome": "confirmed"
+      },
+      "lastAt": "2026-10-16T09:30:12.315Z",
+      "latencyLast": 2980,
+      "latencySum": 32780,
+      "latencyN": 11,
+      "prompt": 344278,
+      "cachedTokens": 343508,
+      "vendorHit": 343508,
+      "vendorMiss": 770,
+      "cost": 0,
+      "costKnown": true
+    },
+    {
+      "model": "cline-pass/deepseek-v4-pro",
+      "requests": 3,
+      "ok": 3,
+      "errors": 0,
+      "streams": 3,
+      "injected": 3,
+      "injectTarget": [
+        "deepseek"
+      ],
+      "matched": 2,
+      "unmatched": 1,
+      "providers": {
+        "deepseek": 2,
+        "novita": 1
+      },
+      "slugs": {
+        "deepseek/deepseek-v4-pro": 3
+      },
+      "lastProvider": "novita",
+      "lastSlug": "deepseek/deepseek-v4-pro",
+      "lastFallbacks": [
+        "alibaba"
+      ],
+      "lastAffinity": {
+        "outcome": "no_pin"
+      },
+      "lastAt": "2026-10-16T09:31:00.000Z",
+      "latencyLast": 6587,
+      "latencySum": 19761,
+      "latencyN": 3,
+      "prompt": 6300,
+      "cachedTokens": 1310,
+      "vendorHit": 1310,
+      "vendorMiss": 4990,
+      "cost": 0.001234,
+      "costKnown": true
+    }
+  ],
+  "baseline": [
+    {
+      "model": "cline-pass/deepseek-v4.1-flash",
+      "canonicalSlug": "private/deepseek-v4p1-flash-contributor",
+      "finalProvider": "openai-compatible-private",
+      "fallbacks": [],
+      "fallbackCount": 0,
+      "firstSeenAt": "2026-10-16T09:19:03.000Z",
+      "lastSeenAt": "2026-10-16T09:30:12.315Z",
+      "samples": 11
+    }
+  ],
+  "drifts": [
+    {
+      "at": "2026-10-16T09:22:41.000Z",
+      "model": "cline-pass/deepseek-v4.1-flash",
+      "field": "canonicalSlug",
+      "from": "deepseek/deepseek-v4.1-flash",
+      "to": "private/deepseek-v4p1-flash-contributor"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-10-16T09:19:02.553Z",
+      "action": "挂钩",
+      "detail": "globalThis.fetch 已包裹"
+    },
+    {
+      "at": "2026-10-16T09:20:11.000Z",
+      "action": "探测全部",
+      "detail": "4 个模型"
+    },
+    {
+      "at": "2026-10-16T09:22:41.000Z",
+      "action": "漂移",
+      "model": "cline-pass/deepseek-v4.1-flash",
+      "detail": "canonicalSlug：deepseek/deepseek-v4.1-flash → private/deepseek-v4p1-flash-contributor"
+    }
+  ]
+}

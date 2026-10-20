@@ -1,0 +1,67 @@
+{
+  "name": "dsh-clinepass-guard",
+  "version": "0.1.0",
+  "description": "Cline Pass 上游守卫：按模型注入钉选字段 + 回读真实路由元数据 + 上游漂移告警 + 缓存与用量观测 for DeepSeek Harness",
+  "type": "module",
+  "main": "./dist/native/index.js",
+  "exports": {
+    ".": "./dist/native/index.js",
+    "./client": "./dist/native/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "dist/**",
+    "src/**",
+    "scripts/**",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build-native.mjs",
+    "test": "node test-host.mjs && node test-client.mjs",
+    "e2e": "node test-e2e.mjs",
+    "preview": "node preview/make-states.mjs && node preview.mjs"
+  },
+  "keywords": [
+    "deepseek",
+    "dsh",
+    "cordis",
+    "plugin",
+    "cline",
+    "cline-pass",
+    "guard",
+    "pin",
+    "upstream",
+    "provider",
+    "drift",
+    "observability"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkvkvk/dsh-clinepass-guard.git"
+  },
+  "homepage": "https://github.com/dkvkvk/dsh-clinepass-guard#readme",
+  "bugs": {
+    "url": "https://github.com/dkvkvk/dsh-clinepass-guard/issues"
+  }
+}
