@@ -70,12 +70,22 @@ return {
       '.cpg-tbl tbody tr+tr td{border-top:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.13))}',
       '.cpg-tbl tbody tr:hover td{background:rgba(128,128,128,.035)}',
       '.cpg-detail{padding:0}',
-      // 就地展开的详情行：整行合并 8 列，用浅色背景 + 虚线顶边与数据行区分
-      '.cpg-detailrow>td{padding:0;background:rgba(120,140,200,.05);border-top:1px dashed var(--dsw-alias-border,rgba(255,255,255,.14))}',
+      // ── 钉住结果：卡片列表（取代 8 列表格）────────────────────────────────
+      // 用表格时面板一窄就裁列，用户看不到「钉选目标」和按钮。卡片三行、可折行，
+      // 任何宽度都不裁切：窄了换行，而不是挤出可视区。
+      '.cpg-rows{padding:2px 0}',
+      '.cpg-row{padding:10px 0;border-top:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.13))}',
+      '.cpg-row:first-child{border-top:0}',
+      '.cpg-row-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}',
+      '.cpg-row-name{min-width:0;flex:1 1 auto}',
+      '.cpg-row-pin{flex:0 0 auto;max-width:56%;text-align:right}',
+      '.cpg-row-meta{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:6px;font-size:11.5px;align-items:center}',
+      '.cpg-mi{white-space:nowrap;display:inline-flex;gap:4px;align-items:center}',
+      '.cpg-mi-l{color:var(--dsw-alias-label-secondary,#8b8b8b);font-size:10.5px}',
+      '.cpg-row-act{display:flex;gap:6px;margin-top:8px;align-items:center}',
+      '.cpg-row-act .cpg-in{flex:1 1 120px;min-width:0}',
+      '.cpg-detailrow{padding:0;background:rgba(120,140,200,.05);border-top:1px dashed var(--dsw-alias-border,rgba(255,255,255,.14))}',
       '.cpg-detail .cpg-sec-b{padding:12px 13px}',
-      // 关键：父表用固定列宽。否则父表是自动列宽、内层 kv 表是 width:100%，
-      // 两者互为输入 → 内层表塌到最小内容宽度（1 个字符一行，长 slug 竖着排）。
-      '.cpg-tbl-pin{table-layout:fixed;width:100%}',
       // 详情卡的长值（16 个上游的列表、整段报错 JSON）必须换行，不能把表格撑出容器再被裁掉。
       // table-layout:fixed + overflow-wrap:anywhere 是这里的关键：自动列宽会按最长的不可断行片段撑开。
       '.cpg-tbl-kv{table-layout:fixed;width:100%}',
@@ -89,8 +99,8 @@ return {
       '.cpg-act .cpg-btn{padding-left:5px;padding-right:5px}',
       // 表格防溢出：窄面板里宁可省略号，也不要横向裁切或把行撑成三行
       '.cpg-tscroll{overflow-x:auto}',
-      '.cpg-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:138px}',
-      '.cpg-slug{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:138px;font-size:10.5px;color:var(--dsw-alias-label-secondary,#8b8b8b)}',
+      '.cpg-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}',
+      '.cpg-slug{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:10.5px;color:var(--dsw-alias-label-secondary,#8b8b8b)}',
       '.cpg-cand{max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '.cpg-slugcell{max-width:152px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '.cpg-num{white-space:nowrap}',
@@ -131,7 +141,10 @@ return {
       '.cpg-fold-b{padding:11px 13px;border-top:1px solid var(--dsw-alias-border-tertiary,rgba(128,128,128,.18))}',
 
       // ── 输入 ──
-      '.cpg-in{background:transparent;border:1px solid var(--dsw-alias-border-secondary,rgba(128,128,128,.35));border-radius:6px;padding:3px 7px;font-size:11.5px;color:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;width:100%;box-sizing:border-box;min-width:66px}',
+      // 输入框的关键：width:100% + min-width:0，永不大于所在单元格。
+      // 以前 min-width:66px 在窄面板里会让输入框溢出单元格，压到右边的「探测/详情」按钮上（实测踩到）。
+      '.cpg-in{background:transparent;border:1px solid var(--dsw-alias-border-secondary,rgba(128,128,128,.35));border-radius:6px;padding:3px 7px;font-size:11.5px;color:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;width:100%;box-sizing:border-box;min-width:0}',
+      '.cpg-td-in{min-width:86px}',
       '.cpg-in:focus{outline:0;border-color:rgba(88,166,255,.6)}',
       '.cpg-sel{background:transparent;border:1px solid var(--dsw-alias-border-secondary,rgba(128,128,128,.35));border-radius:6px;padding:3px 7px;font-size:12px;color:inherit;font-family:inherit}',
       '.cpg-seg{display:inline-flex;border:1px solid var(--dsw-alias-border-secondary,rgba(128,128,128,.35));border-radius:8px;overflow:hidden}',
@@ -544,92 +557,90 @@ return {
         },
           models.length === 0
             ? h('div', { className: 'cpg-note' }, '没有读到模型清单（检查 profile 的 llm 配置）。')
-            : h('div', null,
-              h('div', { className: 'cpg-tscroll' },
-                h('table', { className: 'cpg-tbl cpg-tbl-pin' },
-                  h('thead', null, h('tr', null,
-                    h('th', { style: { width: '118px' } }, '模型'),
-                    h('th', { style: { width: '104px' } }, '结论'),
-                    h('th', { style: { width: '84px' } }, '实际命中'),
-                    h('th', { className: 'cpg-num', style: { width: '44px' } }, '注入'),
-                    h('th', { className: 'cpg-num', style: { width: '48px' } }, '缓存率'),
-                    h('th', { className: 'cpg-num', style: { width: '62px' } }, '费用'),
-                    h('th', null, '钉选目标'),
-                    h('th', { className: 'cpg-act', style: { width: '104px' } }, ''))),
-                  h('tbody', null, models.reduce((acc, m) => {
-                    const v = live.find((x) => x.model === m) || null
-                    const c = capBy[m]
-                    const p = probeBy[m]
-                    const b = baseBy[m]
-                    const pin = pinOf(m)
-                    const vd = pinVerdict(v, c, pin)
-                    const prog = probeBy[m]
-                    const cands = (prog && prog.availableProviders && prog.availableProviders.length)
-                      ? prog.availableProviders.join(', ')
-                      : (c && c.providers && c.providers.length ? c.providers.join(', ') : '')
-                    const avg = v && v.latencyN ? v.latencySum / v.latencyN : null
-                    const rate = v && v.prompt > 0 ? (v.cachedTokens / v.prompt) * 100 : null
-                    const slug = (v && v.lastSlug) || (p && p.canonicalSlug) || (b && b.canonicalSlug) || ''
-                    const distKeys = v ? Object.keys(v.providers || {}) : []
-                    const dist = distKeys.map((x) => x + '×' + v.providers[x]).join('  ')
-                    acc.push(h('tr', { key: m },
-                      h('td', null,
-                        h('div', { className: 'cpg-name cpg-mono', title: m }, shortModel(m)),
-                        slug ? h('div', { className: 'cpg-slug cpg-mono', title: slug }, slug) : null),
-                      h('td', null,
-                        pill(vd.label, vd.kind),
-                        h('div', { className: 'cpg-vdnote', title: vd.note }, vd.note)),
-                      h('td', null,
-                        (v || b || c)
-                          ? providerPill(v && v.lastProvider ? v.lastProvider : (b && b.finalProvider))
-                          : h('span', { className: 'cpg-dim' }, '—'),
-                        distKeys.length > 1
-                          // 多渠道路由 = 缓存会被切碎的信号，必须仍然显眼（改版时差点丢掉）
-                          ? h('div', { className: 'cpg-sub cpg-sub-warn', title: dist }, dist)
-                          : null),
-                      h('td', { className: 'cpg-mono cpg-num' },
-                        v && v.injected > 0
-                          ? (v.matched + '/' + (v.matched + v.unmatched))
-                          : h('span', { className: 'cpg-dim' }, '—')),
-                      h('td', {
-                        className: 'cpg-mono cpg-num',
-                        // 请求数与延迟不占列了：悬停缓存率即可看到，详情里也有完整的
-                        title: v ? ('请求 ' + v.requests + ' 次 · 平均延迟 ' + fmtMs(avg) + ' · 命中 ' + tokens(v.cachedTokens) + '/' + tokens(v.prompt)) : null,
+            // 这里原来是 8 列表格：面板一窄，右边几列（钉选目标/按钮）就被裁掉，
+            // 要么横向滚动、要么输入框压到按钮上。改成可折行的卡片列表后，
+            // 任何宽度都不会有内容被裁 —— 窄了就换行，而不是挤出可视区。
+            : h('div', { className: 'cpg-rows' },
+              models.reduce((acc, m) => {
+                const v = live.find((x) => x.model === m) || null
+                const c = capBy[m]
+                const p = probeBy[m]
+                const b = baseBy[m]
+                const pin = pinOf(m)
+                const vd = pinVerdict(v, c, pin)
+                const cands = (p && p.availableProviders && p.availableProviders.length)
+                  ? p.availableProviders.join(', ')
+                  : (c && c.providers && c.providers.length ? c.providers.join(', ') : '')
+                const avg = v && v.latencyN ? v.latencySum / v.latencyN : null
+                const rate = v && v.prompt > 0 ? (v.cachedTokens / v.prompt) * 100 : null
+                const slug = (v && v.lastSlug) || (p && p.canonicalSlug) || (b && b.canonicalSlug) || ''
+                const distKeys = v ? Object.keys(v.providers || {}) : []
+                const dist = distKeys.map((x) => x + '×' + v.providers[x]).join('  ')
+                const hitPill = (v || b || c)
+                  ? providerPill(v && v.lastProvider ? v.lastProvider : (b && b.finalProvider))
+                  : h('span', { className: 'cpg-dim' }, '—')
+                acc.push(h('div', { key: m, className: 'cpg-row' },
+                  // 第一行：模型名 + 结论（结论永远在右上，不必横向找）
+                  h('div', { className: 'cpg-row-top' },
+                    h('div', { className: 'cpg-row-name' },
+                      h('div', { className: 'cpg-name cpg-mono', title: m }, shortModel(m)),
+                      slug ? h('div', { className: 'cpg-slug cpg-mono', title: slug }, slug) : null),
+                    h('div', { className: 'cpg-row-pin' },
+                      pill(vd.label, vd.kind),
+                      h('div', { className: 'cpg-vdnote', title: vd.note }, vd.note))),
+                  // 第二行：关键数字，折行不裁切
+                  h('div', { className: 'cpg-row-meta' },
+                    h('span', { className: 'cpg-mi' }, h('span', { className: 'cpg-mi-l' }, '实际命中'), hitPill,
+                      distKeys.length > 1
+                        // 多渠道路由 = 缓存被切碎的信号，必须显眼
+                        ? h('span', { className: 'cpg-sub-warn', title: dist }, dist)
+                        : null),
+                    h('span', { className: 'cpg-mi' }, h('span', { className: 'cpg-mi-l' }, '注入'),
+                      h('span', { className: 'cpg-mono' }, v && v.injected > 0
+                        ? (v.matched + '/' + (v.matched + v.unmatched))
+                        : '—')),
+                    h('span', {
+                      className: 'cpg-mi',
+                      title: v ? ('请求 ' + v.requests + ' 次 · 平均延迟 ' + fmtMs(avg) + ' · 命中 ' + tokens(v.cachedTokens) + '/' + tokens(v.prompt)) : null,
+                    },
+                      h('span', { className: 'cpg-mi-l' }, '缓存'),
+                      h('span', {
+                        className: 'cpg-mono',
                         style: rate === null ? null : { color: rate >= 60 ? '#3fb950' : (rate >= 20 ? '#d29922' : '#f85149') },
-                      }, pct(rate)),
-                      h('td', { className: 'cpg-mono cpg-num' }, v && v.costKnown ? money(v.cost) : '—'),
-                      h('td', null, h('input', {
-                        className: 'cpg-in',
-                        title: cands ? ('候选：' + cands) : null,
-                        value: (draft && draft[m] !== undefined) ? draft[m] : '',
-                        placeholder: c && c.pinnable === false ? '不需要' : (cands || '如 deepseek'),
-                        onChange: (e) => setDraftOne(m, e.target.value),
-                      })),
-                      h('td', { className: 'cpg-act' },
-                        h('button', { className: 'cpg-btn cpg-btn-x', disabled: !!busy,
-                          onClick: () => run('guard.probe', { model: m }, m) }, busy === m ? '…' : '探测'),
-                        ' ',
-                        h('button', { className: 'cpg-btn cpg-btn-x', disabled: !!busy,
-                          onClick: () => setOpen(Object.assign({}, open, { [m]: !open[m] })) },
-                          open[m] ? '收起' : '详情'))))
-                    // 详情就地展开在所属行下面：点哪行就在哪行看到，不需要滚动
-                    if (open[m]) {
-                      acc.push(h('tr', { key: m + '-detail', className: 'cpg-detailrow' },
-                        h('td', { colSpan: 8 },
-                          p
-                            ? h(DetailCard, {
-                              p, busy, compact: true,
-                              onCache: () => run('guard.cache', { model: m, rounds: 2 }, '缓存 ' + m),
-                            })
-                            : h('div', { className: 'cpg-note', style: { padding: '11px 13px' } },
-                              '这个模型还没探测过 —— 点本行的「探测」，才会知道它能不能钉、有哪些候选上游。'))))
-                    }
-                    return acc
-                  }, [])))),
+                      }, pct(rate))),
+                    h('span', { className: 'cpg-mi' }, h('span', { className: 'cpg-mi-l' }, '费用'),
+                      h('span', { className: 'cpg-mono' }, v && v.costKnown ? money(v.cost) : '—'))),
+                  // 第三行：钉选输入 + 动作，输入框自动占满剩余宽度
+                  h('div', { className: 'cpg-row-act' },
+                    h('input', {
+                      className: 'cpg-in',
+                      title: cands ? ('候选：' + cands) : null,
+                      value: (draft && draft[m] !== undefined) ? draft[m] : '',
+                      placeholder: c && c.pinnable === false ? '不需要（单管道）' : (cands || '如 deepseek'),
+                      onChange: (e) => setDraftOne(m, e.target.value),
+                    }),
+                    h('button', { className: 'cpg-btn cpg-btn-x', disabled: !!busy,
+                      onClick: () => run('guard.probe', { model: m }, m) }, busy === m ? '…' : '探测'),
+                    h('button', { className: 'cpg-btn cpg-btn-x', disabled: !!busy,
+                      onClick: () => setOpen(Object.assign({}, open, { [m]: !open[m] })) },
+                      open[m] ? '收起' : '详情'))))
+                // 详情就地展开在这张卡片下面（不是表格行，宽度天然占满）
+                if (open[m]) {
+                  acc.push(h('div', { key: m + '-detail', className: 'cpg-detailrow' },
+                    p
+                      ? h(DetailCard, {
+                        p, busy, compact: true,
+                        onCache: () => run('guard.cache', { model: m, rounds: 2 }, '缓存 ' + m),
+                      })
+                      : h('div', { className: 'cpg-note', style: { padding: '11px 13px' } },
+                        '这个模型还没探测过 —— 点本行的「探测」，才会知道它能不能钉、有哪些候选上游。')))
+                }
+                return acc
+              }, [])),
               h('div', { className: 'cpg-note cpg-note-b' },
                 '结论怎么看：绿「已钉住」= 请求确实落在你指定的上游；灰「钉不住·正常」= 该模型只有一条管道，' +
                 '没有对象可钉（deepseek-v4.1-flash 就是这种，不是坏了）；蓝「可钉·未钉」= 想省缓存就填个目标；' +
-                '红「钉住·有漏」= 配了但没落到，最该处理。'))),
+                '红「钉住·有漏」= 配了但没落到，最该处理。')),
 
         // ── 上游漂移 ──
         drifts.length

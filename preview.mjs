@@ -216,12 +216,14 @@ async function render(state, theme, name) {
     '*{box-sizing:border-box}body{margin:0;padding:22px 24px;font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;' +
     'background:' + t.bg + ';color:' + t.fg + ';' + t.vars + '}' +
     ':root{' + t.vars + '}' +
-    '\n' + css + '\n</style><div style="max-width:760px">' + body + '</div>'
+    '\n' + css + '\n</style><div style="max-width:' + VW + 'px">' + body + '</div>'
 
   const file = path.join(outDir, name + '.html')
   fs.writeFileSync(file, html, 'utf8')
   return { file, name }
 }
+
+const VW = Number(process.env.PREVIEW_WIDTH) || 760
 
 // ── 截图 ─────────────────────────────────────────────────────────────────
 function shoot(htmlFile, pngFile, height) {
@@ -230,7 +232,7 @@ function shoot(htmlFile, pngFile, height) {
   const args = [
     '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run',
     '--user-data-dir=' + tmp,
-    '--window-size=808,' + height,
+    '--window-size=' + (VW + 48) + ',' + height,
     '--screenshot=' + pngFile,
     'file:///' + htmlFile.replace(/\\/g, '/'),
   ]

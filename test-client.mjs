@@ -262,7 +262,10 @@ ok(fetchCalls.some((c) => c.url === '/clinepass-guard/api/state' && c.method ===
 ok(body.indexOf('钉住结果') !== -1, '有「钉住结果」卡片（合并了原来的实时流量 + 可钉性）')
 ok(body.indexOf('用量') !== -1, '有「用量」卡片')
 ok(body.indexOf('上游漂移') !== -1, '有「上游漂移」卡片')
-ok(body.indexOf('钉选目标') !== -1, '有「钉选目标」列')
+  // 钉住结果改成卡片列表后没有「钉选目标」列头了，但四个关键字段仍必须以文本出现
+  ok(body.indexOf('实际命中') !== -1, '卡片显示实际命中')
+  ok(body.indexOf('注入') !== -1, '卡片显示注入命中数')
+  ok(body.indexOf('缓存') !== -1, '卡片显示缓存命中率')
 ok(body.indexOf('守卫配置') !== -1, '有「守卫配置」卡片')
 
 console.log('\n== 数据渲染 ==')
